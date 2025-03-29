@@ -15,4 +15,7 @@ If you are developing a production application, we recommend using TypeScript an
 "# website-pinger" 
 "# website-pinger" 
 "# website-keepUp" 
+<<<<<<< HEAD
 "# website-keepUp" 
+=======
+>>>>>>> dc06bab26eead3d3004b1377b6c303ad422151b5
