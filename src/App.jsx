@@ -17,6 +17,13 @@ function App() {
       status: 'Checking...',
       lastChecked: '',
       error: null
+    },
+    {
+      url: 'https://clip-buzz-frontend-nkvx.vercel.app/',
+      name: 'Clip Buzz',
+      status: 'Checking...',
+      lastChecked: '',
+      error: null
     }
   ])
   const [isLoading, setIsLoading] = useState(false)
