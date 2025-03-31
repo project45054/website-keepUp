@@ -3,33 +3,57 @@ import axios from 'axios'
 import './App.css'
 
 function App() {
-  const [status, setStatus] = useState('Checking...')
-  const [lastChecked, setLastChecked] = useState('')
-  const [error, setError] = useState(null)
+  const [websites, setWebsites] = useState([
+    {
+      url: 'https://swifttalk-42li.onrender.com',
+      name: 'SwiftTalk',
+      status: 'Checking...',
+      lastChecked: '',
+      error: null
+    },
+    {
+      url: 'https://website-keep-up.vercel.app/',
+      name: 'Website Keep Up',
+      status: 'Checking...',
+      lastChecked: '',
+      error: null
+    }
+  ])
   const [isLoading, setIsLoading] = useState(false)
 
-  const checkWebsite = async () => {
-    console.log('Checking website... in checkWebsite');
+  const checkWebsite = async (website) => {
     setIsLoading(true)
     try {
-      const response = await axios.get('https://swifttalk-42li.onrender.com')
-      setStatus('Website is up!')
-      console.log('Website is up!')
-      setError(null)
+      const response = await axios.get(website.url)
+      setWebsites(prevWebsites => 
+        prevWebsites.map(w => 
+          w.url === website.url 
+            ? { ...w, status: 'Website is up!', error: null, lastChecked: new Date().toLocaleString() }
+            : w
+        )
+      )
     } catch (err) {
-      setStatus('Website is down!')
-      setError(err.message)
+      setWebsites(prevWebsites => 
+        prevWebsites.map(w => 
+          w.url === website.url 
+            ? { ...w, status: 'Website is down!', error: err.message, lastChecked: new Date().toLocaleString() }
+            : w
+        )
+      )
     }
-    setLastChecked(new Date().toLocaleString())
     setIsLoading(false)
+  }
+
+  const checkAllWebsites = () => {
+    websites.forEach(website => checkWebsite(website))
   }
 
   useEffect(() => {
     // Initial check
-    checkWebsite()
-    console.log('Checking website... in useEffect');
+    checkAllWebsites()
+    
     // Set up interval for checking every 5 minutes
-    const interval = setInterval(checkWebsite, 5 * 60 * 1000)
+    const interval = setInterval(checkAllWebsites, 5 * 60 * 1000)
 
     // Cleanup interval on component unmount
     return () => clearInterval(interval)
@@ -40,38 +64,42 @@ function App() {
       <h1>Website Status Monitor</h1>
       
       <div className="status-container">
-        <div className="status-box">
-          <h2>Current Status</h2>
-          <div className={`status-indicator ${status.includes('up') ? 'up' : 'down'}`}>
-            {status}
-          </div>
-        </div>
+        {websites.map((website, index) => (
+          <div key={index} className="website-status">
+            <h2>{website.name}</h2>
+            <div className="status-box">
+              <h3>Current Status</h3>
+              <div className={`status-indicator ${website.status.includes('up') ? 'up' : 'down'}`}>
+                {website.status}
+              </div>
+            </div>
 
-        <div className="status-box">
-          <h2>Last Check</h2>
-          <div className="time-display">
-            {lastChecked || 'Never'}
-          </div>
-        </div>
+            <div className="status-box">
+              <h3>Last Check</h3>
+              <div className="time-display">
+                {website.lastChecked || 'Never'}
+              </div>
+            </div>
 
-        {error && (
-          <div className="error-box">
-            <h2>Error Details</h2>
-            <p className="error">{error}</p>
+            {website.error && (
+              <div className="error-box">
+                <h3>Error Details</h3>
+                <p className="error">{website.error}</p>
+              </div>
+            )}
           </div>
-        )}
+        ))}
       </div>
 
       <button 
-        onClick={checkWebsite} 
+        onClick={checkAllWebsites} 
         className="check-button"
         disabled={isLoading}
       >
-        {isLoading ? 'Checking...' : 'Check Now'}
+        {isLoading ? 'Checking...' : 'Check All Websites'}
       </button>
     </div>
   )
 }
-
 
 export default App
